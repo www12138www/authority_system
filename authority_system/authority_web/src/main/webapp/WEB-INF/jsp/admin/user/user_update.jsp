@@ -10,7 +10,7 @@
 </head>
 <body>
 	<div class="body_main">
-		<form class="layui-form layui-form-pane" action="${ctx}/user/update">
+		<form class="layui-form layui-form-pane" action="${ctx}/user/update" method="post" enctype="multipart/form-data">
 
 			<input type="hidden" value="${user.id}" name="id">
 			<div class="layui-form-item">
@@ -67,8 +67,10 @@
 			<div class="layui-form-item">
 				<label class="layui-form-label">头像</label>
 				<div class="layui-input-block">
-					<input type="file" name="userImg" autocomplete="off" value=""
-						placeholder="请输入头像" class="layui-input">
+					<input type="file" name="upload" autocomplete="off" value="" id="upload"
+						placeholder="请输入头像" class="layui-input" >
+					<input type="text" id="userImg" name="userImg" value="${user.userImg}">
+
 				</div>
 			</div>
 			<div class="layui-form-item">
@@ -89,8 +91,27 @@
 </body>
 <script type="text/javascript">
 
-	layui.use('form', function() {
+	layui.use(['form','layer','upload'], function(){
 		var form = layui.form;
+		var upload=layui.upload;
+
+
+		//执行实例
+		var uploadInst = upload.render({
+			elem: '#upload' //绑定元素
+			,url: '${ctx}/user/test' //上传接口
+
+			,done: function(res){
+				console.log(res);
+				//上传完毕回调
+				console.log(res.data.userImg);
+				$("#userImg").attr("value",res.data.userImg)
+
+			}
+			,error: function(){
+				//请求异常回调
+			}
+		});
 
 		//通用弹出层表单提交方法
 		form.on('submit(demo1)', function(data){

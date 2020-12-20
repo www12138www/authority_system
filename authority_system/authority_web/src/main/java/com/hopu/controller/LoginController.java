@@ -30,12 +30,18 @@ public class LoginController {
             User user1 = (User) subject.getPrincipal();
             session.setAttribute("user",user1);
 
-            return "admin/index";
+            return "redirect:/user/toMainPage";
+//            return "admin/index";
         } catch (Exception e) {
             String msg = "账户["+ token.getPrincipal() + "]的用户名或密码错误！";
             model.addAttribute("msg", msg);
-            System.out.println("bbb");
             return "forward:/login.jsp";
         }
 	}
+
+	@RequestMapping("toMainPage")
+    public String toMainPage(){
+	    return "admin/index";
+    }
+
 }

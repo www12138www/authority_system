@@ -11,6 +11,7 @@ import com.hopu.utils.ShiroUtils;
 import com.hopu.utils.UUIDUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -18,11 +19,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
+
 import static com.hopu.result.ResponseEntity.*;
 
 @Controller
@@ -82,18 +87,50 @@ public class UserController {
 
 	@RequestMapping("save")
 	@ResponseBody
-	public ResponseEntity addUser(User user){
+	public ResponseEntity addUser(User user
+			,String userImg
+
+	)throws IOException {
+
 		//判断是否有重复名
+		System.out.println(user);
+		System.out.println(userImg);
 		User user1 = userService.getUserByUserName(user.getUserName());
 		if (user1!=null){
 			return error("用户名已存在");
 		}
+//		String name = makeImg(userImg);
+//		System.out.println(name);
+
 		ShiroUtils.encPass(user);
+		user.setUserImg(userImg);
 		user.setId(UUIDUtils.getID());
 		user.setSalt(UUIDUtils.getID());
 		user.setCreateTime(new Date());
+
 		userService.save(user);
 		return success();
+	}
+
+	@RequestMapping("test")
+	@ResponseBody
+	public ResponseEntity test(@RequestParam("upload") MultipartFile multipartFile){
+		File file = new File("D:\\mynginx\\nginx-1.18.0\\html");
+		ResponseEntity responseEntity = new ResponseEntity();
+		User user = new User();
+		String newFileName = UUID.randomUUID()+ multipartFile.getOriginalFilename();
+		try {
+			multipartFile.transferTo(new File(file,newFileName));
+
+		}catch (IOException e) {
+			e.printStackTrace();
+		}
+		user.setUserImg(newFileName);
+		responseEntity.setData(user);
+		responseEntity.setMsg("操作成功");
+		responseEntity.setResult(true);
+		System.out.println(user.getUserImg());
+		return responseEntity;
 	}
 
 	@RequiresPermissions("user:update")
@@ -106,24 +143,27 @@ public class UserController {
 
 	@ResponseBody
 	@RequestMapping("update")
-	public ResponseEntity updateUser(User user){
+	public ResponseEntity updateUser(User user,@RequestParam("userImg") String userImg){
+		System.out.println(userImg);
 		ShiroUtils.encPass(user);
 		user.setUpdateTime(new Date());
+		user.setUserImg(userImg);
 		userService.updateById(user);
 		return success();
 	}
 
-	@RequiresPermissions("user:delete")
+//	@RequiresPermissions("user:delete")
 	@ResponseBody
 	@RequestMapping("delete")
 		public ResponseEntity deleteUser(@RequestBody ArrayList<User> users){
 		try {
 			users.forEach(user ->{
-				System.out.println(user.getId());
+
 				if (!"root".equals(user.getUserName()))
 				userService.removeById(user.getId());
 			});
 		}catch (Exception e){
+
 			e.printStackTrace();
 			return error(e.getMessage());
 		}

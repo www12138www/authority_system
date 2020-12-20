@@ -13,11 +13,39 @@ public class User extends BaseEntity {
     private String password; // 密码
     private String salt; // 加密用户的盐
     private String nickname; // 昵称
+
+    public User(String userName, String password, String salt, String nickname, String tel, Integer sex, String email, String status, String userImg) {
+        this.userName = userName;
+        this.password = password;
+        this.salt = salt;
+        this.nickname = nickname;
+        this.tel = tel;
+        this.sex = sex;
+        this.email = email;
+        this.status = status;
+        this.userImg = userImg;
+    }
+
     private String tel;  // 手机号码
     private Integer sex; // 性别：1、男；-1、女
     private String email; // 邮箱
     private String status;  // 状态：on、可用；其它、禁用
+    private String userImg; //头像
 
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
+    }
+
+    public String getUserImg() {
+        return userImg;
+    }
+
+    public void setUserImg(String userImg) {
+        this.userImg = userImg;
+    }
+
+    public User() {
+    }
 
     public String getUserName() {
         return userName;
